@@ -17,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.github.gustavobf.ifood.cadastro.Prato;
 import com.github.gustavobf.ifood.cadastro.Restaurante;
 
 @Path("/restaurantes")
@@ -62,5 +63,74 @@ public class RestauranteResource {
 
 	}
 	
+	// Pratos
+
+	@GET
+	@Path("{idRestaurante}/pratos")
+	public List<Restaurante> buscarPratos(@PathParam("idRestaurante") Long idRestaurante) {
+		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
+		if (restauranteOp.isEmpty()) {
+			throw new NotFoundException("Restaurante não existe");
+		}
+		return Prato.list("restaurante", restauranteOp.get());
+	}
+
+	@POST
+	@Path("{idRestaurante}/pratos")
+	@Transactional
+	public Response adicionarPrato(@PathParam("idRestaurante") Long idRestaurante, Prato dto) {
+		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
+		if (restauranteOp.isEmpty()) {
+			throw new NotFoundException("Restaurante não existe");
+		}
+
+		Prato prato = new Prato();
+		prato.nome = dto.nome;
+		prato.descricao = dto.descricao;
+		prato.preco = dto.preco;
+		prato.restaurante = restauranteOp.get();
+
+		prato.persist();
+
+		return Response.status(Status.CREATED).build();
+	}
+
+	@PUT
+	@Path("{idRestaurante}/pratos/{id}")
+	@Transactional
+	public void atualizarPrato(@PathParam("idRestaurante") Long idRestaurante, @PathParam("id") Long id, Prato dto) {
+		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
+		if (restauranteOp.isEmpty()) {
+			throw new NotFoundException("Restaurante não existe");
+		}
+
+		Optional<Prato> pratoOp = Prato.findByIdOptional(id);
+
+		if (pratoOp.isEmpty()) {
+			throw new NotFoundException("Prato não existe");
+		}
+
+		Prato prato = pratoOp.get();
+		prato.preco = dto.preco;
+		prato.persist();
+
+	}
+
+	@DELETE
+	@Path("{idRestaurante}/pratos/{id}")
+	@Transactional
+	public void deletarPrato(@PathParam("idRestaurante") Long idRestaurante, @PathParam("id") Long id) {
+		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
+
+		if (restauranteOp.isEmpty()) {
+			throw new NotFoundException("Restaurante não existe");
+		}
+
+		Optional<Prato> pratoOp = Prato.findByIdOptional(id);
+
+		pratoOp.ifPresentOrElse(Prato::delete, () -> {
+			throw new NotFoundException();
+		});
+	}
 
 }
