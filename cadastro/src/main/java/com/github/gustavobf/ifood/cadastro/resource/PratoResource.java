@@ -1,4 +1,4 @@
-package com.github.gustavobf.ifood.cadastro;
+package com.github.gustavobf.ifood.cadastro.resource;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,22 +14,23 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
-@Path("/restaurantes")
+import com.github.gustavobf.ifood.cadastro.Prato;
+
+@Path("/pratos")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class RestauranteResource {
-
+public class PratoResource {
 	@GET
-	public List<Restaurante> listar() {
-		return Restaurante.listAll();
+	public List<Prato> listar() {
+		return Prato.listAll();
 	}
 
 	@POST
 	@Transactional
-	public Response adicionar(Restaurante dto) {
+	public Response adicionar(Prato dto) {
 		dto.persist();
 		return Response.status(Status.CREATED).build();
 	}
@@ -37,27 +38,26 @@ public class RestauranteResource {
 	@PUT
 	@Path("{id}")
 	@Transactional
-	public void atualizar(@PathParam("id") Long id, Restaurante dto) {
-		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
-		if (restauranteOp.isEmpty()) {
+	public void atualizar(@PathParam("id") Long id, Prato dto) {
+		Optional<Prato> pratoOp = Prato.findByIdOptional(id);
+		if (pratoOp.isEmpty()) {
 			throw new NotFoundException();
 		}
 
-		Restaurante restaurante = restauranteOp.get();
-		restaurante.nome = dto.nome;
-		restaurante.persist();
+		Prato prato = pratoOp.get();
+		prato.nome = dto.nome;
+		prato.persist();
 	}
-	
+
 	@DELETE
 	@Path("{id}")
 	@Transactional
 	public void deletar(@PathParam("id") Long id) {
-		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
-	
-		restauranteOp.ifPresentOrElse(Restaurante::delete, 
-						() -> {throw new NotFoundException();});
-		
-	}
-	
+		Optional<Prato> pratoOp = Prato.findByIdOptional(id);
 
+		pratoOp.ifPresentOrElse(Prato::delete, () -> {
+			throw new NotFoundException();
+		});
+
+	}
 }

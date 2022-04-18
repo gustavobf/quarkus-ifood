@@ -11,11 +11,15 @@ import javax.persistence.Table;
 public class Localizacao {
 
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
-	
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	public Long id;
+
 	public Double latitude;
-	
+
 	public Double longitude;
-	
+
+	public Localizacao() {
+		super();
+	}
+
 }

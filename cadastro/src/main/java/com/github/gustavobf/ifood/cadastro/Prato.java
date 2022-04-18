@@ -16,16 +16,20 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 public class Prato extends PanacheEntityBase {
 
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
-	
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	public Long id;
+
 	public String nome;
-	
+
 	public String descricao;
-	
+
 	@ManyToOne
 	public Restaurante restaurante;
-	
+
 	public BigDecimal preco;
-	
+
+	public Prato() {
+		super();
+	}
+
 }
