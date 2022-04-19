@@ -61,6 +61,46 @@
       <artifactId>quarkus-junit5</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
+      <scope>test</scope>
+	</dependency>
+    <dependency>
+    	<groupId>org.testcontainers</groupId>
+    	<artifactId>postgresql</artifactId>
+    	<scope>test</scope>
+	</dependency>
+	<dependency>
+      <groupId>com.github.database-rider</groupId>
+      <artifactId>rider-core</artifactId>
+      <version>1.32.0</version>
+      <scope>test</scope>
+	</dependency>
+	<dependency>
+      <groupId>com.github.database-rider</groupId>
+      <artifactId>rider-cdi</artifactId>
+      <version>1.32.0</version>
+      <scope>test</scope>
+	</dependency>
+	<dependency>
+      <groupId>com.approvaltests</groupId>
+      <artifactId>approvaltests</artifactId>
+      <version>15.1.2</version>
+	</dependency>
+	<dependency>
+	  <groupId>stax</groupId>
+	  <artifactId>stax</artifactId>
+	  <version>1.2.0</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+	<dependency>
+    <groupId>com.google.code.gson</groupId>
+    <artifactId>gson</artifactId>
+    <version>2.9.0</version>
+    <scope>test</scope>
+	</dependency>
+	
   </dependencies>
   <build>
     <plugins>
