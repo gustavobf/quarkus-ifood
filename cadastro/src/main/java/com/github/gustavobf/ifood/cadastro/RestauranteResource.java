@@ -1,4 +1,4 @@
-package com.github.gustavobf.ifood.cadastro.resource;
+package com.github.gustavobf.ifood.cadastro;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,8 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import com.github.gustavobf.ifood.cadastro.Prato;
-import com.github.gustavobf.ifood.cadastro.Restaurante;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("/restaurantes")
 @Produces(MediaType.APPLICATION_JSON)
@@ -26,12 +25,14 @@ import com.github.gustavobf.ifood.cadastro.Restaurante;
 public class RestauranteResource {
 
 	@GET
+	@Tag(name = "restaurante")
 	public List<Restaurante> listar() {
 		return Restaurante.listAll();
 	}
 
 	@POST
 	@Transactional
+	@Tag(name = "restaurante")
 	public Response adicionar(Restaurante dto) {
 		dto.persist();
 		return Response.status(Status.CREATED).build();
@@ -40,6 +41,7 @@ public class RestauranteResource {
 	@PUT
 	@Path("{id}")
 	@Transactional
+	@Tag(name = "restaurante")
 	public void atualizar(@PathParam("id") Long id, Restaurante dto) {
 		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
 		if (restauranteOp.isEmpty()) {
@@ -54,6 +56,7 @@ public class RestauranteResource {
 	@DELETE
 	@Path("{id}")
 	@Transactional
+	@Tag(name = "restaurante")
 	public void deletar(@PathParam("id") Long id) {
 		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
 
@@ -67,6 +70,7 @@ public class RestauranteResource {
 
 	@GET
 	@Path("{idRestaurante}/pratos")
+	@Tag(name = "prato")
 	public List<Restaurante> buscarPratos(@PathParam("idRestaurante") Long idRestaurante) {
 		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
 		if (restauranteOp.isEmpty()) {
@@ -78,6 +82,7 @@ public class RestauranteResource {
 	@POST
 	@Path("{idRestaurante}/pratos")
 	@Transactional
+	@Tag(name = "prato")
 	public Response adicionarPrato(@PathParam("idRestaurante") Long idRestaurante, Prato dto) {
 		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
 		if (restauranteOp.isEmpty()) {
@@ -98,6 +103,7 @@ public class RestauranteResource {
 	@PUT
 	@Path("{idRestaurante}/pratos/{id}")
 	@Transactional
+	@Tag(name = "prato")
 	public void atualizarPrato(@PathParam("idRestaurante") Long idRestaurante, @PathParam("id") Long id, Prato dto) {
 		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
 		if (restauranteOp.isEmpty()) {
@@ -119,6 +125,7 @@ public class RestauranteResource {
 	@DELETE
 	@Path("{idRestaurante}/pratos/{id}")
 	@Transactional
+	@Tag(name = "prato")
 	public void deletarPrato(@PathParam("idRestaurante") Long idRestaurante, @PathParam("id") Long id) {
 		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
 
