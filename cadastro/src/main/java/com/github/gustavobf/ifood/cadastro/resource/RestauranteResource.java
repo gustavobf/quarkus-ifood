@@ -2,6 +2,8 @@ package com.github.gustavobf.ifood.cadastro.resource;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -22,6 +24,8 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import com.github.gustavobf.ifood.cadastro.Prato;
 import com.github.gustavobf.ifood.cadastro.Restaurante;
+import com.github.gustavobf.ifood.cadastro.dto.PratoDTO;
+import com.github.gustavobf.ifood.cadastro.dto.PratoMapper;
 import com.github.gustavobf.ifood.cadastro.dto.RestauranteDTO;
 import com.github.gustavobf.ifood.cadastro.dto.RestauranteMapper;
 
@@ -32,11 +36,15 @@ public class RestauranteResource {
 
 	@Inject
 	RestauranteMapper restauranteMapper;
+	@Inject
+	PratoMapper pratoMapper;
 
 	@GET
 	@Tag(name = "restaurante")
-	public List<Restaurante> listar() {
-		return Restaurante.listAll();
+	public List<RestauranteDTO> listar() {
+		Stream<Restaurante> restaurantes = Restaurante.streamAll();
+		return restaurantes.map(r -> restauranteMapper.convertToRestauranteDTO(r)).collect(Collectors.toList());
+
 	}
 
 	@POST
@@ -52,15 +60,20 @@ public class RestauranteResource {
 	@Path("{id}")
 	@Transactional
 	@Tag(name = "restaurante")
-	public void atualizar(@PathParam("id") Long id, Restaurante dto) {
+	public void atualizar(@PathParam("id") Long id, RestauranteDTO dto) {
+
 		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
+
 		if (restauranteOp.isEmpty()) {
 			throw new NotFoundException();
 		}
 
 		Restaurante restaurante = restauranteOp.get();
-		restaurante.nome = dto.nome;
+
+		restauranteMapper.convertToRestaurante(dto, restaurante);
+
 		restaurante.persist();
+
 	}
 
 	@DELETE
@@ -69,7 +82,6 @@ public class RestauranteResource {
 	@Tag(name = "restaurante")
 	public void deletar(@PathParam("id") Long id) {
 		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
-
 		restauranteOp.ifPresentOrElse(Restaurante::delete, () -> {
 			throw new NotFoundException();
 		});
@@ -81,32 +93,30 @@ public class RestauranteResource {
 	@GET
 	@Path("{idRestaurante}/pratos")
 	@Tag(name = "prato")
-	public List<Restaurante> buscarPratos(@PathParam("idRestaurante") Long idRestaurante) {
+	public List<PratoDTO> buscarPratos(@PathParam("idRestaurante") Long idRestaurante) {
 		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
 		if (restauranteOp.isEmpty()) {
 			throw new NotFoundException("Restaurante não existe");
 		}
-		return Prato.list("restaurante", restauranteOp.get());
+
+		Stream<Prato> pratos = Prato.stream("restaurante", restauranteOp.get());
+		return pratos.map(p -> pratoMapper.convertToDTO(p)).collect(Collectors.toList());
 	}
 
 	@POST
 	@Path("{idRestaurante}/pratos")
 	@Transactional
 	@Tag(name = "prato")
-	public Response adicionarPrato(@PathParam("idRestaurante") Long idRestaurante, Prato dto) {
+	public Response adicionarPrato(@PathParam("idRestaurante") Long idRestaurante, PratoDTO dto) {
 		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
+
 		if (restauranteOp.isEmpty()) {
 			throw new NotFoundException("Restaurante não existe");
 		}
 
-		Prato prato = new Prato();
-		prato.nome = dto.nome;
-		prato.descricao = dto.descricao;
-		prato.preco = dto.preco;
+		Prato prato = pratoMapper.convertToPrato(dto);
 		prato.restaurante = restauranteOp.get();
-
 		prato.persist();
-
 		return Response.status(Status.CREATED).build();
 	}
 
@@ -114,8 +124,9 @@ public class RestauranteResource {
 	@Path("{idRestaurante}/pratos/{id}")
 	@Transactional
 	@Tag(name = "prato")
-	public void atualizarPrato(@PathParam("idRestaurante") Long idRestaurante, @PathParam("id") Long id, Prato dto) {
+	public void atualizarPrato(@PathParam("idRestaurante") Long idRestaurante, @PathParam("id") Long id, PratoDTO dto) {
 		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
+
 		if (restauranteOp.isEmpty()) {
 			throw new NotFoundException("Restaurante não existe");
 		}
@@ -127,9 +138,10 @@ public class RestauranteResource {
 		}
 
 		Prato prato = pratoOp.get();
-		prato.preco = dto.preco;
-		prato.persist();
 
+		pratoMapper.convertToPrato(dto, prato);
+
+		prato.persist();
 	}
 
 	@DELETE
