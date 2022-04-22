@@ -17,7 +17,7 @@ public interface RestauranteMapper {
 
 	Restaurante convertToRestaurante(RestauranteDTO dto, @MappingTarget Restaurante restaurante);
 
-
+	@Mapping(target = "dataCriacao", dateFormat = "dd/MM/yyyy HH:mm:ss")
 	RestauranteDTO convertToRestauranteDTO(Restaurante restaurante);
 
 }

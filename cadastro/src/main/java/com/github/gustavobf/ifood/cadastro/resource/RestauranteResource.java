@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -20,6 +21,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import com.github.gustavobf.ifood.cadastro.Prato;
@@ -28,10 +32,12 @@ import com.github.gustavobf.ifood.cadastro.dto.PratoDTO;
 import com.github.gustavobf.ifood.cadastro.dto.PratoMapper;
 import com.github.gustavobf.ifood.cadastro.dto.RestauranteDTO;
 import com.github.gustavobf.ifood.cadastro.dto.RestauranteMapper;
+import com.github.gustavobf.ifood.cadastro.infra.ConstraintViolationResponse;
 
 @Path("/restaurantes")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Tag(name = "restaurante")
 public class RestauranteResource {
 
 	@Inject
@@ -40,7 +46,6 @@ public class RestauranteResource {
 	PratoMapper pratoMapper;
 
 	@GET
-	@Tag(name = "restaurante")
 	public List<RestauranteDTO> listar() {
 		Stream<Restaurante> restaurantes = Restaurante.streamAll();
 		return restaurantes.map(r -> restauranteMapper.convertToRestauranteDTO(r)).collect(Collectors.toList());
@@ -49,8 +54,9 @@ public class RestauranteResource {
 
 	@POST
 	@Transactional
-	@Tag(name = "restaurante")
-	public Response adicionar(RestauranteDTO dto) {
+	@APIResponse(responseCode = "201", description = "Caso restaurante seja cadastrado com sucesso")
+	@APIResponse(responseCode = "400", content = @Content(schema = @Schema(allOf = ConstraintViolationResponse.class)))
+	public Response adicionar(@Valid RestauranteDTO dto) {
 		Restaurante restaurante = restauranteMapper.convertToRestaurante(dto);
 		restaurante.persist();
 		return Response.status(Status.CREATED).build();
@@ -59,7 +65,6 @@ public class RestauranteResource {
 	@PUT
 	@Path("{id}")
 	@Transactional
-	@Tag(name = "restaurante")
 	public void atualizar(@PathParam("id") Long id, RestauranteDTO dto) {
 
 		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
@@ -79,7 +84,6 @@ public class RestauranteResource {
 	@DELETE
 	@Path("{id}")
 	@Transactional
-	@Tag(name = "restaurante")
 	public void deletar(@PathParam("id") Long id) {
 		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
 		restauranteOp.ifPresentOrElse(Restaurante::delete, () -> {
