@@ -1,8 +1,9 @@
-package com.github.gustavobf.ifood.cadastro;
+package com.github.gustavobf.ifood.cadastro.resource;
 
 import java.util.List;
 import java.util.Optional;
 
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -19,10 +20,18 @@ import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+import com.github.gustavobf.ifood.cadastro.Prato;
+import com.github.gustavobf.ifood.cadastro.Restaurante;
+import com.github.gustavobf.ifood.cadastro.dto.RestauranteDTO;
+import com.github.gustavobf.ifood.cadastro.dto.RestauranteMapper;
+
 @Path("/restaurantes")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class RestauranteResource {
+
+	@Inject
+	RestauranteMapper restauranteMapper;
 
 	@GET
 	@Tag(name = "restaurante")
@@ -33,8 +42,9 @@ public class RestauranteResource {
 	@POST
 	@Transactional
 	@Tag(name = "restaurante")
-	public Response adicionar(Restaurante dto) {
-		dto.persist();
+	public Response adicionar(RestauranteDTO dto) {
+		Restaurante restaurante = restauranteMapper.convertToRestaurante(dto);
+		restaurante.persist();
 		return Response.status(Status.CREATED).build();
 	}
 
@@ -65,7 +75,7 @@ public class RestauranteResource {
 		});
 
 	}
-	
+
 	// Pratos
 
 	@GET

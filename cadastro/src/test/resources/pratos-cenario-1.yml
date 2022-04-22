@@ -2,6 +2,8 @@ prato:
   - ID: 123
     NOME: "Novo Prato1"
     PRECO: 0 
+    RESTAURANTE_ID: 0
   - ID: 234
     NOME: "Novo Prato2"
     PRECO: 0
+    RESTAURANTE_ID: 0

@@ -1,0 +1,24 @@
+[
+  {
+    "id": 123,
+    "nome": "Novo Prato1",
+    "preco": 0.00,
+    "restaurante": {
+      "cnpj": "cnpj",
+      "id": 0,
+      "nome": "nome1",
+      "proprietario": "proprietario1"
+    }
+  },
+  {
+    "id": 234,
+    "nome": "Novo Prato2",
+    "preco": 0.00,
+    "restaurante": {
+      "cnpj": "cnpj",
+      "id": 0,
+      "nome": "nome1",
+      "proprietario": "proprietario1"
+    }
+  }
+]
