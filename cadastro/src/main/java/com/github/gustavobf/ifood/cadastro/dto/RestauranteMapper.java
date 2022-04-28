@@ -3,10 +3,11 @@ package com.github.gustavobf.ifood.cadastro.dto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.ReportingPolicy;
 
 import com.github.gustavobf.ifood.cadastro.Restaurante;
 
-@Mapper(componentModel = "cdi")
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "cdi")
 public interface RestauranteMapper {
 	
 	@Mapping(target = "id", ignore = true)

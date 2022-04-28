@@ -2,10 +2,11 @@ package com.github.gustavobf.ifood.cadastro.dto;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.ReportingPolicy;
 
 import com.github.gustavobf.ifood.cadastro.Prato;
 
-@Mapper(componentModel = "cdi")
+@Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "cdi")
 public interface PratoMapper {
 	
 	PratoDTO convertToDTO(Prato p);
