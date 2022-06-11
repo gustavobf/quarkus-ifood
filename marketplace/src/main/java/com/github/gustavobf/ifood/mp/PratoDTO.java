@@ -12,8 +12,6 @@ public class PratoDTO {
 
 	public String descricao;
 
-	public Restaurante restaurante;
-
 	public BigDecimal preco;
 
 	public static PratoDTO from(Row row) {
