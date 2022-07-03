@@ -7,6 +7,8 @@ import java.util.stream.Stream;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.json.bind.Jsonb;
+import javax.json.bind.JsonbBuilder;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
@@ -34,6 +36,8 @@ import org.eclipse.microprofile.openapi.annotations.security.OAuthFlows;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
 
 import com.github.gustavobf.ifood.cadastro.Prato;
 import com.github.gustavobf.ifood.cadastro.Restaurante;
@@ -58,12 +62,16 @@ public class RestauranteResource {
 	@Inject
 	PratoMapper pratoMapper;
 
+	@Inject
+	@Channel("restaurantes")
+	Emitter<String> emitter;
+
 	@GET
 	@Counted(name = "Quantidade buscas Restaurante")
 	@SimplyTimed(name = "Tempo simples de busca")
 	@Timed(name = "Tempo completo de busca")
 	public List<RestauranteDTO> listar() {
-		Stream<Restaurante> restaurantes = Restaurante.streamAll();
+		final Stream<Restaurante> restaurantes = Restaurante.streamAll();
 		return restaurantes.map(r -> restauranteMapper.convertToRestauranteDTO(r)).collect(Collectors.toList());
 
 	}
@@ -72,24 +80,29 @@ public class RestauranteResource {
 	@Transactional
 	@APIResponse(responseCode = "201", description = "Caso restaurante seja cadastrado com sucesso")
 	@APIResponse(responseCode = "400", content = @Content(schema = @Schema(allOf = ConstraintViolationResponse.class)))
-	public Response adicionar(@Valid RestauranteDTO dto) {
-		Restaurante restaurante = restauranteMapper.convertToRestaurante(dto);
+	public Response adicionar(@Valid final RestauranteDTO dto) {
+		final Restaurante restaurante = restauranteMapper.convertToRestaurante(dto);
 		restaurante.persist();
+
+		final Jsonb create = JsonbBuilder.create();
+		final String json = create.toJson(restaurante);
+		emitter.send(json);
+
 		return Response.status(Status.CREATED).build();
 	}
 
 	@PUT
 	@Path("{id}")
 	@Transactional
-	public void atualizar(@PathParam("id") Long id, RestauranteDTO dto) {
+	public void atualizar(@PathParam("id") final Long id, final RestauranteDTO dto) {
 
-		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
+		final Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
 
 		if (restauranteOp.isEmpty()) {
 			throw new NotFoundException();
 		}
 
-		Restaurante restaurante = restauranteOp.get();
+		final Restaurante restaurante = restauranteOp.get();
 
 		restauranteMapper.convertToRestaurante(dto, restaurante);
 
@@ -100,8 +113,8 @@ public class RestauranteResource {
 	@DELETE
 	@Path("{id}")
 	@Transactional
-	public void deletar(@PathParam("id") Long id) {
-		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
+	public void deletar(@PathParam("id") final Long id) {
+		final Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
 		restauranteOp.ifPresentOrElse(Restaurante::delete, () -> {
 			throw new NotFoundException();
 		});
@@ -113,13 +126,13 @@ public class RestauranteResource {
 	@GET
 	@Path("{idRestaurante}/pratos")
 	@Tag(name = "prato")
-	public List<PratoDTO> buscarPratos(@PathParam("idRestaurante") Long idRestaurante) {
-		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
+	public List<PratoDTO> buscarPratos(@PathParam("idRestaurante") final Long idRestaurante) {
+		final Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
 		if (restauranteOp.isEmpty()) {
 			throw new NotFoundException("Restaurante não existe");
 		}
 
-		Stream<Prato> pratos = Prato.stream("restaurante", restauranteOp.get());
+		final Stream<Prato> pratos = Prato.stream("restaurante", restauranteOp.get());
 		return pratos.map(p -> pratoMapper.convertToDTO(p)).collect(Collectors.toList());
 	}
 
@@ -127,14 +140,14 @@ public class RestauranteResource {
 	@Path("{idRestaurante}/pratos")
 	@Transactional
 	@Tag(name = "prato")
-	public Response adicionarPrato(@PathParam("idRestaurante") Long idRestaurante, PratoDTO dto) {
-		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
+	public Response adicionarPrato(@PathParam("idRestaurante") final Long idRestaurante, final PratoDTO dto) {
+		final Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
 
 		if (restauranteOp.isEmpty()) {
 			throw new NotFoundException("Restaurante não existe");
 		}
 
-		Prato prato = pratoMapper.convertToPrato(dto);
+		final Prato prato = pratoMapper.convertToPrato(dto);
 		prato.restaurante = restauranteOp.get();
 		prato.persist();
 		return Response.status(Status.CREATED).build();
@@ -144,20 +157,20 @@ public class RestauranteResource {
 	@Path("{idRestaurante}/pratos/{id}")
 	@Transactional
 	@Tag(name = "prato")
-	public void atualizarPrato(@PathParam("idRestaurante") Long idRestaurante, @PathParam("id") Long id, PratoDTO dto) {
-		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
+	public void atualizarPrato(@PathParam("idRestaurante") final Long idRestaurante, @PathParam("id") final Long id, final PratoDTO dto) {
+		final Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
 
 		if (restauranteOp.isEmpty()) {
 			throw new NotFoundException("Restaurante não existe");
 		}
 
-		Optional<Prato> pratoOp = Prato.findByIdOptional(id);
+		final Optional<Prato> pratoOp = Prato.findByIdOptional(id);
 
 		if (pratoOp.isEmpty()) {
 			throw new NotFoundException("Prato não existe");
 		}
 
-		Prato prato = pratoOp.get();
+		final Prato prato = pratoOp.get();
 
 		pratoMapper.convertToPrato(dto, prato);
 
@@ -168,14 +181,14 @@ public class RestauranteResource {
 	@Path("{idRestaurante}/pratos/{id}")
 	@Transactional
 	@Tag(name = "prato")
-	public void deletarPrato(@PathParam("idRestaurante") Long idRestaurante, @PathParam("id") Long id) {
-		Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
+	public void deletarPrato(@PathParam("idRestaurante") final Long idRestaurante, @PathParam("id") final Long id) {
+		final Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(idRestaurante);
 
 		if (restauranteOp.isEmpty()) {
 			throw new NotFoundException("Restaurante não existe");
 		}
 
-		Optional<Prato> pratoOp = Prato.findByIdOptional(id);
+		final Optional<Prato> pratoOp = Prato.findByIdOptional(id);
 
 		pratoOp.ifPresentOrElse(Prato::delete, () -> {
 			throw new NotFoundException();
