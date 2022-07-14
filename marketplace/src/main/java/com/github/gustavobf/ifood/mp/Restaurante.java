@@ -25,12 +25,13 @@ public class Restaurante {
 	}
 
 	public void persist(final PgPool pgPool) {
+		System.out.println("Salvando");
+
 		pgPool.preparedQuery("insert into localizacao (id, latitude, longitude) values ($1, $2, $3)").execute(
 				Tuple.of(localizacao.id, localizacao.latitude, localizacao.longitude)).await().indefinitely();
 
 		pgPool.preparedQuery("insert into restaurante (id, nome, localizacao_id) values ($1, $2, $3)").execute(
 				Tuple.of(id, nome, localizacao.id)).await().indefinitely();
-
 	}
 
 }

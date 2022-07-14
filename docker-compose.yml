@@ -64,14 +64,13 @@ services:
       - "61616:61616"
       
   mongodb_ifood:
+    image: mongo:5.0.9
     container_name: mongodb_ifood
-    image: mongo:4.2.21-bionic
     environment:
-      MONGO_INITDB_ROOT_USERNAME: pedido
-      MONGO_INITDB_ROOT_PASSWORD: pedido
-      MONGO_INITDB_DATABASE: pedido
+      - MONGO_INITDB_ROOT_USERNAME=pedido
+      - MONGO_INITDB_ROOT_PASSWORD=pedido
     ports:
-      - "27017:27017"
+    - "27017:27017"
     
   zookeeper:
     container_name: zookeeper_container
@@ -89,6 +88,7 @@ services:
      - zookeeper
     environment:
      - ZOOKEEPER_CONNECT=zookeeper:2181
+     - ADVERTISED_LISTENERS=PLAINTEXT://host.docker.internal:9092
      
   kafdrop:
     container_name: kafdrop_container
