@@ -29,7 +29,6 @@ public class PedidoRealizadoIncoming {
 		final Restaurante restaurante = new Restaurante();
 		restaurante.nome = dto.restaurante.nome;
 		p.restaurante = restaurante;
-		//		final String json = JsonbBuilder.create().toJson(dto);
 		elastic.index(dto, new IndexRequest("pedidos"));
 		p.persist();
 	}
